@@ -1,23 +1,13 @@
 package com.gpb.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@ToString
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User {
     private long id;
-
-    public User(long id) {
-        this.id = id;
-    }
-
-    public User() {
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
 }

@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class RegistrationController {
     private final UserService userService;
 
-
     public RegistrationController(UserService userService) {
         this.userService = userService;
     }

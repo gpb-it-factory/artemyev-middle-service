@@ -1,20 +1,12 @@
 package com.gpb.entity;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Request {
     private long chatId;
-
-    public Request(long chatId) {
-        this.chatId = chatId;
-    }
-
-    public Request() {
-    }
-
-    public long getChatId() {
-        return chatId;
-    }
-
-    public void setChatId(long chatId) {
-        this.chatId = chatId;
-    }
 }
