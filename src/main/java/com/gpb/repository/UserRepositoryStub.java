@@ -7,7 +7,7 @@ import java.util.*;
 
 @Repository
 public class UserRepositoryStub implements UserRepository {
-    private List<User> users = new ArrayList<>();
+    private final List<User> users = new ArrayList<>();
 
     @Override
     public Optional<User> findById(long id) {
@@ -17,8 +17,7 @@ public class UserRepositoryStub implements UserRepository {
     }
 
     @Override
-    public User save(User user) {
+    public void save(User user) {
         users.add(user);
-        return user;
     }
 }
