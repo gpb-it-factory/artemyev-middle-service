@@ -5,11 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Request {
+public class AccountRequest {
     private long userId;
-    @NotEmpty(message = "Username cannot be empty")
-    private String userName;
+    @NotEmpty(message = "Account name cannot be empty")
+    private String accountName;
 }

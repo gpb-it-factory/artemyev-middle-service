@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("api/")
+@RequestMapping("/v2")
 public class RegistrationController {
     private final UserService userService;
 
@@ -19,7 +19,7 @@ public class RegistrationController {
 
     @PostMapping("/users")
     public ResponseEntity<?> registerUser(@RequestBody Request request) {
-        User user = new User(request.getChatId());
+        User user = new User(request.getUserId());
         return userService.processBackendResponse(user, userService.saveUser(user));
     }
 }

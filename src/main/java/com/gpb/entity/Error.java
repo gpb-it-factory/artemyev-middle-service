@@ -9,4 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Error {
     private String message;
+    private String type;
+    private String code;
+    private String traceId;
 }
