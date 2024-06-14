@@ -7,17 +7,15 @@ import java.util.*;
 
 @Repository
 public class UserRepositoryStub implements UserRepository {
-    private final List<User> users = new ArrayList<>();
+    private final Map<Long, String> users = new HashMap<>();
 
     @Override
     public Optional<User> findById(long id) {
-        return users.stream()
-                .filter(user -> user.getId() == id)
-                .findFirst();
+        return users.containsKey(id) ? Optional.of(new User((id), users.get(id))) : Optional.empty();
     }
 
     @Override
     public void save(User user) {
-        users.add(user);
+        users.put(user.getId(), user.getName());
     }
 }

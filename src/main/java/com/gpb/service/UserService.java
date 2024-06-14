@@ -1,11 +1,8 @@
 package com.gpb.service;
 
 import com.gpb.entity.BackendResponse;
-import com.gpb.entity.User;
-import org.springframework.http.ResponseEntity;
+import com.gpb.entity.RequestDto;
 
 public interface UserService {
-    BackendResponse saveUser(User user);
-
-    ResponseEntity<?> processBackendResponse(User user, BackendResponse backendResponse);
+    BackendResponse saveUser(RequestDto request);
 }

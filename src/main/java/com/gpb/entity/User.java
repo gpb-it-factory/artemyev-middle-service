@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 public class User {
     @Min(value = 1, message = "ID must be greater than 0")
     private long id;
+
+    private String name;
 }

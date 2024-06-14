@@ -9,8 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,11 +32,11 @@ public class AccountServiceImplTest {
         when(accountRepository.findByUserId(userId)).thenReturn(null);
 
 
-        ResponseEntity<?> response = accountService.createAccount(userId, accountType);
+        Response response = accountService.createAccount(userId, accountType);
 
 
         verify(accountRepository, times(1)).save(userId, accountType);
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertEquals("Account created successfully", response.getMessage());
     }
 
     @Test
@@ -51,12 +49,11 @@ public class AccountServiceImplTest {
         when(accountRepository.findByUserId(userId)).thenReturn(existingAccount);
 
 
-        ResponseEntity<?> response = accountService.createAccount(userId, accountType);
+        Response response = accountService.createAccount(userId, accountType);
 
 
         verify(accountRepository, never()).save(anyLong(), anyString());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("User already has an account", ((Response) response.getBody()).getMessage());
+        assertEquals("User already has an account", response.getMessage());
     }
 
     @Test

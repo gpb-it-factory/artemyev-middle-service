@@ -1,13 +1,9 @@
 package com.gpb.service;
 
 import com.gpb.entity.BackendResponse;
-import com.gpb.entity.Response;
+import com.gpb.entity.RequestDto;
 import com.gpb.entity.User;
 import com.gpb.repository.UserRepository;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
@@ -21,9 +17,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public BackendResponse saveUser(User user) {
+    public BackendResponse saveUser(RequestDto request) {
         BackendResponse backendResponse = new BackendResponse();
-
+        User user = new User(request.getUserId(), request.getUserName());
         if (userRepository.findById(user.getId()).isPresent()) {
             backendResponse.setSuccess(false);
             return backendResponse;
@@ -32,19 +28,4 @@ public class UserServiceImpl implements UserService {
         backendResponse.setSuccess(true);
         return backendResponse;
     }
-
-    @Override
-    public ResponseEntity<?> processBackendResponse(User user, BackendResponse backendResponse) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        if (backendResponse != null && backendResponse.isSuccess()) {
-            Response response = new Response("Пользователь успешно создан");
-            return new ResponseEntity<>(response, headers, HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(new Response("Пользователь с id: " + user.getId() + " уже существует"),
-                    headers, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 }

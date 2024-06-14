@@ -2,10 +2,6 @@ package com.gpb.service;
 
 import com.gpb.entity.Response;
 import com.gpb.repository.AccountRepository;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
@@ -18,17 +14,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ResponseEntity<?> createAccount(long userId, String accountType) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
+    public Response createAccount(long userId, String accountType) {
         try {
             if (accountRepository.findByUserId(userId) != null) {
-                return new ResponseEntity<>(new Response("User already has an account"), headers, HttpStatus.INTERNAL_SERVER_ERROR);
+                return new Response("User already has an account");
             }
 
             accountRepository.save(userId, accountType);
-            return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
+            return new Response("Account created successfully");
         } catch (Exception e) {
             throw new RuntimeException("Something went wrong", e);
         }

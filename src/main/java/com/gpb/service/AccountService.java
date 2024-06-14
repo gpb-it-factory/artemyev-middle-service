@@ -1,8 +1,8 @@
 package com.gpb.service;
 
-import org.springframework.http.ResponseEntity;
+import com.gpb.entity.Response;
 
 public interface AccountService {
 
-    ResponseEntity<?> createAccount(long user, String accountType);
+    Response createAccount(long user, String accountType);
 }
