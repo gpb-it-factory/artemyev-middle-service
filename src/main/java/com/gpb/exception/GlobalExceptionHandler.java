@@ -1,9 +1,7 @@
 package com.gpb.exception;
 
 import com.gpb.entity.Error;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -22,13 +20,11 @@ public class GlobalExceptionHandler {
         Error errorDetails = new Error(
                 "Произошло что-то ужасное, но станет лучше, честно",
                 "CreateAccountError",
-                "500",
+                HttpStatus.INTERNAL_SERVER_ERROR.toString(),
                 UUID.randomUUID().toString()
         );
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
 
-        return new ResponseEntity<>(errorDetails, headers, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
@@ -40,5 +36,27 @@ public class GlobalExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({UserNotFoundException.class,})
+    public ResponseEntity<?> handleUserNotFoundException(UserNotFoundException ex) {
+        Error error = new Error(
+                ex.getMessage(),
+                UserNotFoundException.class.getSimpleName(),
+                HttpStatus.NOT_FOUND.toString(),
+                UUID.randomUUID().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({UserAlreadyHasAccountException.class,})
+    public ResponseEntity<?> UserAlreadyHasAccountException(UserAlreadyHasAccountException ex) {
+        Error error = new Error(
+                ex.getMessage(),
+                UserAlreadyHasAccountException.class.getSimpleName(),
+                HttpStatus.NOT_FOUND.toString(),
+                UUID.randomUUID().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 }

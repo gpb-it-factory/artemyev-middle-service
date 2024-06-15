@@ -1,8 +1,10 @@
 package com.gpb.service;
 
-import com.gpb.entity.Response;
+import com.gpb.entity.BackendResponse;
+import com.gpb.entity.ResponseDto;
 
 public interface AccountService {
 
-    Response createAccount(long user, String accountType);
+    ResponseDto createAccount(long user, String accountType);
+    BackendResponse findByUserId(long id);
 }

@@ -7,12 +7,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Account {
-    private long id;
+    private UUID accountId;
     @Min(value = 1, message = "ID must be greater than 0")
     private long clientId;
     @Min(value = 1, message = "ID must be greater than 0")

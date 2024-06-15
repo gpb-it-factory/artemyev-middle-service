@@ -6,6 +6,8 @@ import com.gpb.entity.User;
 import com.gpb.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -14,6 +16,11 @@ public class UserServiceImpl implements UserService {
 
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+    @Override
+    public Optional<User> findById(long id) {
+        return userRepository.findById(id);
     }
 
     @Override

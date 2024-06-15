@@ -4,10 +4,11 @@ import com.gpb.entity.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
 public class UserRepositoryStub implements UserRepository {
-    private final Map<Long, String> users = new HashMap<>();
+    private final ConcurrentHashMap<Long, String> users = new ConcurrentHashMap<>();
 
     @Override
     public Optional<User> findById(long id) {

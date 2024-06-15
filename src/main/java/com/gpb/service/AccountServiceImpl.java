@@ -1,6 +1,8 @@
 package com.gpb.service;
 
-import com.gpb.entity.Response;
+import com.gpb.entity.BackendResponse;
+import com.gpb.entity.ResponseDto;
+import com.gpb.exception.UserAlreadyHasAccountException;
 import com.gpb.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +16,23 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Response createAccount(long userId, String accountType) {
-        try {
-            if (accountRepository.findByUserId(userId) != null) {
-                return new Response("User already has an account");
-            }
-
-            accountRepository.save(userId, accountType);
-            return new Response("Account created successfully");
-        } catch (Exception e) {
-            throw new RuntimeException("Something went wrong", e);
+    public ResponseDto createAccount(long userId, String accountType) {
+        BackendResponse backendResponse = findByUserId(userId);
+        if (backendResponse.isSuccess()) {
+            accountRepository.saveAccount(userId, accountType);
+            return new ResponseDto("Account created successfully");
         }
+        throw new UserAlreadyHasAccountException("User already has an account");
+    }
+
+    @Override
+    public BackendResponse findByUserId(long id) {
+        BackendResponse backendResponse = new BackendResponse();
+        if (accountRepository.findByUserId(id).isPresent()) {
+            backendResponse.setSuccess(false);
+            return backendResponse;
+        }
+        backendResponse.setSuccess(true);
+        return backendResponse;
     }
 }

@@ -1,7 +1,8 @@
 package com.gpb.service;
 
 import com.gpb.entity.Account;
-import com.gpb.entity.Response;
+import com.gpb.entity.ResponseDto;
+import com.gpb.exception.UserAlreadyHasAccountException;
 import com.gpb.repository.AccountRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -29,14 +34,13 @@ public class AccountServiceImplTest {
 
         long userId = 1L;
         String accountType = "My first awesome account";
-        when(accountRepository.findByUserId(userId)).thenReturn(null);
+        when(accountRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        ResponseDto responseDto = accountService.createAccount(userId, accountType);
 
 
-        Response response = accountService.createAccount(userId, accountType);
-
-
-        verify(accountRepository, times(1)).save(userId, accountType);
-        assertEquals("Account created successfully", response.getMessage());
+        verify(accountRepository, times(1)).saveAccount(userId, accountType);
+        assertEquals("Account created successfully", responseDto.getMessage());
     }
 
     @Test
@@ -45,15 +49,14 @@ public class AccountServiceImplTest {
 
         long userId = 1L;
         String accountType = "My first awesome account";
-        Account existingAccount = new Account();
-        when(accountRepository.findByUserId(userId)).thenReturn(existingAccount);
+        Account existingAccount = new Account(UUID.randomUUID(), userId, BigDecimal.valueOf(5000), "My first awesome account");
+        when(accountRepository.findByUserId(userId)).thenReturn(Optional.of(existingAccount));
 
-
-        Response response = accountService.createAccount(userId, accountType);
-
-
-        verify(accountRepository, never()).save(anyLong(), anyString());
-        assertEquals("User already has an account", response.getMessage());
+        UserAlreadyHasAccountException exception = assertThrows(UserAlreadyHasAccountException.class, () -> {
+            accountService.createAccount(userId, accountType);
+        });
+        verify(accountRepository, never()).saveAccount(anyLong(), anyString());
+        assertEquals("User already has an account", exception.getMessage());
     }
 
     @Test
@@ -62,14 +65,14 @@ public class AccountServiceImplTest {
 
         long userId = 1L;
         String accountType = "My first awesome account";
-        when(accountRepository.findByUserId(userId)).thenReturn(null);
-        doThrow(new RuntimeException("Database error")).when(accountRepository).save(userId, accountType);
-
+        when(accountRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        doThrow(new RuntimeException("Database error")).when(accountRepository).saveAccount(userId, accountType);
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
             accountService.createAccount(userId, accountType);
         });
 
-        assertEquals("Something went wrong", exception.getMessage());
+        assertEquals("Database error", exception.getMessage());
+        verify(accountRepository, times(1)).saveAccount(userId, accountType);
     }
 }
