@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Request {
-    private long chatId;
+public class ResponseDto {
+    private String message;
 }

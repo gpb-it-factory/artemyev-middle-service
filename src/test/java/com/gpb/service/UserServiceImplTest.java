@@ -1,6 +1,7 @@
 package com.gpb.service;
 
 import com.gpb.entity.BackendResponse;
+import com.gpb.entity.RequestDto;
 import com.gpb.entity.User;
 import com.gpb.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;
@@ -24,25 +25,28 @@ public class UserServiceImplTest {
     @InjectMocks
     private UserServiceImpl userService;
 
+    private RequestDto newUser;
+
     private User user;
 
     @BeforeEach
     public void setUp() {
-        user = new User(1L);
+        newUser = new RequestDto(1L, "Николай");
+        user = new User(1L, "Николай");
     }
 
     @Test
     public void testSaveUserWhenUserSavedThenSuccessIsTrue() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
-        BackendResponse backendResponse = userService.saveUser(user);
+        BackendResponse backendResponse = userService.saveUser(newUser);
 
-       Assertions.assertTrue(backendResponse.isSuccess());
+        Assertions.assertTrue(backendResponse.isSuccess());
     }
 
     @Test
     public void testSaveUserWhenUserNotSavedThenSuccessIsFalse() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        BackendResponse backendResponse = userService.saveUser(user);
+        BackendResponse backendResponse = userService.saveUser(newUser);
 
         Assertions.assertFalse(backendResponse.isSuccess());
     }
