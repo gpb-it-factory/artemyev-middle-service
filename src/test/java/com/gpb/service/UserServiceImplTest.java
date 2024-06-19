@@ -1,7 +1,7 @@
 package com.gpb.service;
 
 import com.gpb.entity.BackendResponse;
-import com.gpb.entity.RequestDto;
+import com.gpb.dto.RequestDto;
 import com.gpb.entity.User;
 import com.gpb.repository.UserRepository;
 import org.junit.jupiter.api.Assertions;

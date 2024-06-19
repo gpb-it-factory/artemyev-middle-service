@@ -1,22 +1,20 @@
 package com.gpb.controller;
 
 import com.gpb.entity.BackendResponse;
-import com.gpb.entity.RequestDto;
-import com.gpb.entity.ResponseDto;
+import com.gpb.dto.RequestDto;
+import com.gpb.dto.ResponseDto;
+import com.gpb.exception.UserNotFoundException;
 import com.gpb.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v2")
-public class RegistrationController {
+public class UserController {
     private final UserService userService;
 
-    public RegistrationController(UserService userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -31,5 +29,13 @@ public class RegistrationController {
             return new ResponseEntity<>(new ResponseDto("Пользователь с таким id уже существует"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping("/users/{id}")
+    public ResponseEntity<?> getUser(@PathVariable("id") long userId) {
+        if (userService.findById(userId).isPresent()) {
+            return new ResponseEntity<>(userService.getUser(userId).getId(), HttpStatus.OK);
+        }
+        throw new UserNotFoundException("User doesn't exist, please register first");
     }
 }

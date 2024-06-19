@@ -1,7 +1,8 @@
 package com.gpb.controller;
 
-import com.gpb.entity.AccountRequestDto;
-import com.gpb.entity.ResponseDto;
+import com.gpb.dto.AccountRequestDto;
+import com.gpb.dto.AccountResponseDto;
+import com.gpb.dto.ResponseDto;
 import com.gpb.exception.UserNotFoundException;
 import com.gpb.service.AccountService;
 import com.gpb.service.UserService;
@@ -10,13 +11,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("v2/")
-public class CreateAccountController {
+public class AccountController {
     private final AccountService accountService;
     private final UserService userService;
 
-    public CreateAccountController(AccountService accountService, UserService userService) {
+    public AccountController(AccountService accountService, UserService userService) {
         this.accountService = accountService;
         this.userService = userService;
     }
@@ -31,5 +34,16 @@ public class CreateAccountController {
             return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
         }
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/users/{id}/accounts")
+    public ResponseEntity<?> getUserAccounts(@PathVariable("id") long userId) {
+        List<AccountResponseDto> accounts = accountService.getUserAccounts(userId);
+
+        if (accounts.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(accounts, HttpStatus.OK);
+        }
     }
 }

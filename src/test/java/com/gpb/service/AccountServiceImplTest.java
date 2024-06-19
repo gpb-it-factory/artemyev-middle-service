@@ -1,7 +1,7 @@
 package com.gpb.service;
 
 import com.gpb.entity.Account;
-import com.gpb.entity.ResponseDto;
+import com.gpb.dto.ResponseDto;
 import com.gpb.exception.UserAlreadyHasAccountException;
 import com.gpb.repository.AccountRepository;
 import org.junit.jupiter.api.DisplayName;
