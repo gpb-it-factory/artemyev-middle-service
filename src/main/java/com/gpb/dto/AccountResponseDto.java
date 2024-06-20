@@ -1,4 +1,4 @@
-package com.gpb.entity;
+package com.gpb.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

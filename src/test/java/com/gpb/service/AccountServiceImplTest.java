@@ -1,9 +1,13 @@
 package com.gpb.service;
 
+import com.gpb.dto.AccountResponseDto;
 import com.gpb.entity.Account;
-import com.gpb.entity.ResponseDto;
+import com.gpb.dto.ResponseDto;
+import com.gpb.entity.BackendResponse;
+import com.gpb.exception.DatabaseConnectionFailureException;
 import com.gpb.exception.UserAlreadyHasAccountException;
 import com.gpb.repository.AccountRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,11 +16,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,17 +29,24 @@ public class AccountServiceImplTest {
 
     @InjectMocks
     private AccountServiceImpl accountService;
+    private Account existingAccount;
+    private long userId;
+    private String accountType;
+
+    @BeforeEach
+    public void setUp() {
+        userId = 1L;
+        accountType = "Акционный";
+        existingAccount = new Account(UUID.randomUUID(), userId, BigDecimal.valueOf(1000), "Existing Account");
+    }
 
     @Test
     @DisplayName("Test createAccount when user does not have an account")
     void testCreateAccountWhenUserDoesNotHaveAccountThenSaveAccountAndReturnNoContent() {
 
-        long userId = 1L;
-        String accountType = "My first awesome account";
         when(accountRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         ResponseDto responseDto = accountService.createAccount(userId, accountType);
-
 
         verify(accountRepository, times(1)).saveAccount(userId, accountType);
         assertEquals("Account created successfully", responseDto.getMessage());
@@ -46,10 +55,6 @@ public class AccountServiceImplTest {
     @Test
     @DisplayName("Test createAccount when user already has an account")
     void testCreateAccountWhenUserAlreadyHasAccountThenReturnInternalServerError() {
-
-        long userId = 1L;
-        String accountType = "My first awesome account";
-        Account existingAccount = new Account(UUID.randomUUID(), userId, BigDecimal.valueOf(5000), "My first awesome account");
         when(accountRepository.findByUserId(userId)).thenReturn(Optional.of(existingAccount));
 
         UserAlreadyHasAccountException exception = assertThrows(UserAlreadyHasAccountException.class, () -> {
@@ -62,17 +67,88 @@ public class AccountServiceImplTest {
     @Test
     @DisplayName("Test createAccount when an exception occurs during account creation")
     void testCreateAccountWhenExceptionOccursThenThrowRuntimeException() {
-
-        long userId = 1L;
-        String accountType = "My first awesome account";
         when(accountRepository.findByUserId(userId)).thenReturn(Optional.empty());
-        doThrow(new RuntimeException("Database error")).when(accountRepository).saveAccount(userId, accountType);
+        doThrow(new DatabaseConnectionFailureException("Failed to connect to the database")).when(accountRepository).saveAccount(userId, accountType);
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        DatabaseConnectionFailureException exception = assertThrows(DatabaseConnectionFailureException.class, () -> {
             accountService.createAccount(userId, accountType);
         });
 
-        assertEquals("Database error", exception.getMessage());
+        assertEquals("Failed to connect to the database", exception.getMessage());
         verify(accountRepository, times(1)).saveAccount(userId, accountType);
+    }
+
+    @Test
+    @DisplayName("Test findByUserId when user does not have an account")
+    void testFindByUserIdWhenUserDoesNotHaveAccountThenReturnSuccess() {
+        when(accountRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        BackendResponse backendResponse = accountService.findByUserId(userId);
+
+        assertTrue(backendResponse.isSuccess());
+    }
+
+    @Test
+    @DisplayName("Test findByUserId when user already has an account")
+    void testFindByUserIdWhenUserHasAccountThenReturnFailure() {
+        when(accountRepository.findByUserId(userId)).thenReturn(Optional.of(existingAccount));
+
+        BackendResponse backendResponse = accountService.findByUserId(userId);
+
+        assertFalse(backendResponse.isSuccess());
+    }
+
+    @Test
+    @DisplayName("Test findByUserId when exception occurs")
+    void testFindByUserIdWhenExceptionOccursThenReturnFailure() {
+        when(accountRepository.findByUserId(userId)).thenThrow(new DatabaseConnectionFailureException("Failed to connect to the database"));
+
+        DatabaseConnectionFailureException exception = assertThrows(DatabaseConnectionFailureException.class, () -> {
+            accountService.findByUserId(userId);
+        });
+
+        assertEquals("Failed to connect to the database", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Test getUserAccounts when user has accounts then return the list of AccountResponseDto")
+    void testGetUserAccountsWhenUserHasAccountsThenReturnAccountResponseDtoList() {
+        List<AccountResponseDto> accountResponseDtos = Arrays.asList(
+                new AccountResponseDto("1", "Account 1", BigDecimal.valueOf(1000)),
+                new AccountResponseDto("2", "Account 2", BigDecimal.valueOf(2000))
+        );
+        when(accountRepository.getByUserId(userId)).thenReturn(accountResponseDtos);
+
+        List<AccountResponseDto> result = accountService.getUserAccounts(userId);
+
+        assertEquals(2, result.size());
+        assertEquals("1", result.get(0).getAccountId());
+        assertEquals("Account 1", result.get(0).getAccountName());
+        assertEquals(BigDecimal.valueOf(1000), result.get(0).getAmount());
+        assertEquals("2", result.get(1).getAccountId());
+        assertEquals("Account 2", result.get(1).getAccountName());
+        assertEquals(BigDecimal.valueOf(2000), result.get(1).getAmount());
+    }
+
+    @Test
+    @DisplayName("Test getUserAccounts when user does not have accounts then return an empty list")
+    void testGetUserAccountsWhenUserDoesNotHaveAccountsThenReturnEmptyList() {
+        when(accountRepository.getByUserId(userId)).thenReturn(Collections.emptyList());
+
+        List<AccountResponseDto> result = accountService.getUserAccounts(userId);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Test getUserAccounts when exception occurs during account retrieval then throw the exception")
+    void testGetUserAccountsWhenExceptionOccursDuringAccountRetrievalThenThrowException() {
+        when(accountRepository.getByUserId(userId)).thenThrow(new DatabaseConnectionFailureException("Failed to connect to the database"));
+
+        DatabaseConnectionFailureException exception = assertThrows(DatabaseConnectionFailureException.class, () -> {
+            accountRepository.getByUserId(userId);
+        });
+
+        assertEquals("Failed to connect to the database", exception.getMessage());
     }
 }

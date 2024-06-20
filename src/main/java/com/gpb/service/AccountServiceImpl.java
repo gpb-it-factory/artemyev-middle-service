@@ -1,10 +1,14 @@
 package com.gpb.service;
 
+import com.gpb.dto.AccountResponseDto;
 import com.gpb.entity.BackendResponse;
-import com.gpb.entity.ResponseDto;
+import com.gpb.dto.ResponseDto;
+import com.gpb.exception.DatabaseConnectionFailureException;
 import com.gpb.exception.UserAlreadyHasAccountException;
 import com.gpb.repository.AccountRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -28,11 +32,24 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public BackendResponse findByUserId(long id) {
         BackendResponse backendResponse = new BackendResponse();
-        if (accountRepository.findByUserId(id).isPresent()) {
-            backendResponse.setSuccess(false);
-            return backendResponse;
+        try {
+            if (accountRepository.findByUserId(id).isPresent()) {
+                backendResponse.setSuccess(false);
+                return backendResponse;
+            }
+            backendResponse.setSuccess(true);
+        } catch (Exception e) {
+            throw new DatabaseConnectionFailureException("Failed to connect to the database");
         }
-        backendResponse.setSuccess(true);
         return backendResponse;
+    }
+
+    @Override
+    public List<AccountResponseDto> getUserAccounts(long userId) {
+        try {
+            return accountRepository.getByUserId(userId);
+        } catch (Exception e) {
+            throw new DatabaseConnectionFailureException("Failed to connect to the database");
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.gpb.repository;
 
 import com.gpb.entity.Account;
+import com.gpb.dto.AccountResponseDto;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -28,5 +29,13 @@ public class AccountRepositoryStub implements AccountRepository {
         account.setBalance(BigDecimal.valueOf(5000));
         account.setAccountType(accountType);
         accountData.add(account);
+    }
+
+    @Override
+    public List<AccountResponseDto> getByUserId(long id) {
+        return accountData.stream()
+                .filter(account -> account.getClientId() == id)
+                .map(account -> new AccountResponseDto(account.getAccountId().toString(), account.getAccountType(), account.getBalance()))
+                .toList();
     }
 }

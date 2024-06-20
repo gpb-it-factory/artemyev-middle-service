@@ -59,4 +59,15 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler({DatabaseConnectionFailureException.class, })
+    public ResponseEntity<?> DatabaseConnectionFailureException(DatabaseConnectionFailureException ex) {
+        Error error = new Error(
+                ex.getMessage(),
+                DatabaseConnectionFailureException.class.getSimpleName(),
+                HttpStatus.INTERNAL_SERVER_ERROR.toString(),
+                UUID.randomUUID().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

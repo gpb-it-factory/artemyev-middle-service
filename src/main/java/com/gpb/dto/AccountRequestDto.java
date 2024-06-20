@@ -1,15 +1,16 @@
-package com.gpb.entity;
+package com.gpb.dto;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestDto {
+public class AccountRequestDto {
     private long userId;
-    @NotEmpty(message = "Username cannot be empty")
-    private String userName;
+    @NotEmpty(message = "Account name cannot be empty")
+    private String accountName;
 }
