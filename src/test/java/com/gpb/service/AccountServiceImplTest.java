@@ -1,6 +1,7 @@
 package com.gpb.service;
 
 import com.gpb.dto.AccountResponseDto;
+import com.gpb.dto.TransferResponseDto;
 import com.gpb.entity.Account;
 import com.gpb.dto.ResponseDto;
 import com.gpb.entity.BackendResponse;
@@ -32,12 +33,19 @@ public class AccountServiceImplTest {
     private Account existingAccount;
     private long userId;
     private String accountType;
+    private long from;
+    private long to;
+    private BigDecimal amount;
 
     @BeforeEach
     public void setUp() {
         userId = 1L;
         accountType = "Акционный";
         existingAccount = new Account(UUID.randomUUID(), userId, BigDecimal.valueOf(1000), "Existing Account");
+
+        from = 1L;
+        to = 2L;
+        amount = BigDecimal.valueOf(1250.50);
     }
 
     @Test
@@ -147,6 +155,31 @@ public class AccountServiceImplTest {
 
         DatabaseConnectionFailureException exception = assertThrows(DatabaseConnectionFailureException.class, () -> {
             accountRepository.getByUserId(userId);
+        });
+
+        assertEquals("Failed to connect to the database", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Test decreaseBalance when the account balance is successfully decreased")
+    void testDecreaseBalanceWhenBalanceIsSuccessfullyDecreasedThenReturnTransferResponseDto() {
+        TransferResponseDto transferResponseDto = new TransferResponseDto("Transfer successful");
+
+        when(accountRepository.decreaseBalance(from, to, amount)).thenReturn(transferResponseDto);
+
+        TransferResponseDto result = accountService.decreaseBalance(from, to, amount);
+
+        assertEquals("Transfer successful", result.getTransferId());
+        verify(accountRepository, times(1)).decreaseBalance(from, to, amount);
+    }
+
+    @Test
+    @DisplayName("Test decreaseBalance when a DatabaseConnectionFailureException occurs")
+    void testDecreaseBalanceWhenDatabaseConnectionFailureThenThrowException() {
+        when(accountRepository.decreaseBalance(from, to, amount)).thenThrow(new DatabaseConnectionFailureException("Failed to connect to the database"));
+
+        DatabaseConnectionFailureException exception = assertThrows(DatabaseConnectionFailureException.class, () -> {
+            accountService.decreaseBalance(from, to, amount);
         });
 
         assertEquals("Failed to connect to the database", exception.getMessage());
