@@ -1,8 +1,8 @@
 package com.gpb.controller;
 
-import com.gpb.dto.AccountRequestDto;
-import com.gpb.dto.AccountResponseDto;
-import com.gpb.dto.ResponseDto;
+
+import com.gpb.dto.*;
+import com.gpb.entity.User;
 import com.gpb.exception.UserNotFoundException;
 import com.gpb.service.AccountService;
 import com.gpb.service.UserService;
@@ -11,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("v2/")
@@ -45,5 +47,22 @@ public class AccountController {
         } else {
             return new ResponseEntity<>(accounts, HttpStatus.OK);
         }
+    }
+
+    @PostMapping("/transfers")
+    public ResponseEntity<?> transfer(@RequestBody TransferRequestDto request) {
+        long from = request.getFrom();
+        BigDecimal amount = request.getAmount();
+        Optional<User> to = userService.findByUsername(request.getTo());
+        if (to.isEmpty()) {
+            throw new UserNotFoundException("User doesn't exist, please register first");
+        }
+
+        TransferResponseDto response = accountService.decreaseBalance(from, to.get().getId(), amount);
+
+        if (response != null) {
+            return new ResponseEntity<>(new ResponseDto("Transfer successful: " + response.getTransferId()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

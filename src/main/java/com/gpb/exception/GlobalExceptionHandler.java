@@ -70,4 +70,26 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler({NotEnoughFundsException.class, })
+    public ResponseEntity<?> NotEnoughFundsException(NotEnoughFundsException ex) {
+        Error error = new Error(
+                ex.getMessage(),
+                NotEnoughFundsException.class.getSimpleName(),
+                HttpStatus.BAD_REQUEST.toString(),
+                UUID.randomUUID().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({AccountNotFoundException.class, })
+    public ResponseEntity<?> AccountNotFoundException(AccountNotFoundException ex) {
+        Error error = new Error(
+                ex.getMessage(),
+                AccountNotFoundException.class.getSimpleName(),
+                HttpStatus.BAD_REQUEST.toString(),
+                UUID.randomUUID().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 }

@@ -23,6 +23,13 @@ public class UserRepositoryStub implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByUsername(String username) {
+        return users.stream()
+                .filter(user -> user.getName().equals(username))
+                .findFirst();
+    }
+
+    @Override
     public void save(User user) {
         users.add(user);
     }

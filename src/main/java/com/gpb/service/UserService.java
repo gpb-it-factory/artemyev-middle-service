@@ -10,6 +10,8 @@ import java.util.Optional;
 public interface UserService {
     Optional<User> findById(long id);
 
+    Optional<User> findByUsername(String username);
+
     BackendResponse saveUser(RequestDto request);
 
     UserDto getUser(long id);
