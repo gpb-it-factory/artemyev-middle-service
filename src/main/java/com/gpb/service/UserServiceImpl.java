@@ -30,6 +30,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<User> findByUsername(String username) {
+        try {
+            return userRepository.findByUsername(username);
+        } catch (Exception e) {
+            throw new DatabaseConnectionFailureException("Failed to connect to the database");
+        }
+    }
+
+    @Override
     public BackendResponse saveUser(RequestDto request) {
         BackendResponse backendResponse = new BackendResponse();
         try {

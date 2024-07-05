@@ -1,5 +1,6 @@
 package com.gpb.exception;
 
+import com.gpb.dto.ResponseDto;
 import com.gpb.entity.Error;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +61,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({DatabaseConnectionFailureException.class, })
+    @ExceptionHandler({DatabaseConnectionFailureException.class,})
     public ResponseEntity<?> DatabaseConnectionFailureException(DatabaseConnectionFailureException ex) {
         Error error = new Error(
                 ex.getMessage(),
@@ -69,5 +70,33 @@ public class GlobalExceptionHandler {
                 UUID.randomUUID().toString()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({NotEnoughFundsException.class,})
+    public ResponseEntity<?> NotEnoughFundsException(NotEnoughFundsException ex) {
+        Error error = new Error(
+                ex.getMessage(),
+                NotEnoughFundsException.class.getSimpleName(),
+                HttpStatus.BAD_REQUEST.toString(),
+                UUID.randomUUID().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({AccountNotFoundException.class,})
+    public ResponseEntity<?> AccountNotFoundException(AccountNotFoundException ex) {
+        Error error = new Error(
+                ex.getMessage(),
+                AccountNotFoundException.class.getSimpleName(),
+                HttpStatus.BAD_REQUEST.toString(),
+                UUID.randomUUID().toString()
+        );
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ResponseDto> handleRuntimeException(RuntimeException ex) {
+        ResponseDto response = new ResponseDto(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

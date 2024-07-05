@@ -1,12 +1,13 @@
 package com.gpb.controller;
 
-import com.gpb.dto.AccountRequestDto;
-import com.gpb.dto.AccountResponseDto;
-import com.gpb.dto.ResponseDto;
+
+import com.gpb.dto.*;
 import com.gpb.exception.UserNotFoundException;
 import com.gpb.service.AccountService;
+import com.gpb.service.TransferService;
 import com.gpb.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,14 +16,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("v2/")
+@AllArgsConstructor
 public class AccountController {
     private final AccountService accountService;
     private final UserService userService;
-
-    public AccountController(AccountService accountService, UserService userService) {
-        this.accountService = accountService;
-        this.userService = userService;
-    }
+    private final TransferService transferService;
 
     @PostMapping("/users/{id}/accounts")
     public ResponseEntity<?> createAccount(@PathVariable("id") long userId, @RequestBody @Valid AccountRequestDto accountRequestDto) {
@@ -45,5 +43,11 @@ public class AccountController {
         } else {
             return new ResponseEntity<>(accounts, HttpStatus.OK);
         }
+    }
+
+    @PostMapping("/transfers")
+    public ResponseEntity<?> transfer(@RequestBody TransferRequestDto request) {
+        ResponseDto response = transferService.transfer(request);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
